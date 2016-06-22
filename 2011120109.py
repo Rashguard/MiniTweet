@@ -1,3 +1,4 @@
+import sys
 ########################################################################
 #Methods
 
@@ -12,7 +13,7 @@ def openFriend(rbtree):
             if i % 3 == 1:
                 currUser = text
             elif i % 3 == 2:
-                userNode = rbtree.search(currUser) #need to read user first
+                userNode = rbtree.search(currUser)
                 if userNode is not rbtree.nil:
                     userNode.userData.append(text)
                 friendshipNum = friendshipNum + 1
@@ -149,7 +150,6 @@ class rbtree(object):
         z._red = True
         self._insert_fixup(z)
         
-
     def _insert_fixup(self, z):
         while z.p.red:
             if z.p == z.p.p.left:
@@ -182,6 +182,104 @@ class rbtree(object):
                     self._left_rotate(z.p.p)
         self.root._red = False
 
+    def _transplant(self, u, v):
+        if u.p == self.nil:
+            self._root = v
+        elif u == u.p.left:
+            u.p._left = v
+        else:
+            u.p._right = v
+        v._p = u.p
+
+    def delete_node(self, z):
+        y = z
+        if y.red:
+            y_original_red = True
+        else:
+            y_original_red = False
+            
+        if z.left == self.nil:
+            x = z.right
+            self._transplant(z, z.right)
+        elif z.right == self.nil:
+            x = z.left
+            self._transplant(z, z.left)
+        else:
+            y = self.minimum(z.right)
+            if y.red:
+                y_original_red = True
+            else:
+                y_original_red = False
+            x = y.right
+            if y.p == z:
+                x._p = y
+            else:
+                self._transplant(y, y.right)
+                y._right = z.right
+                y.right._p = y
+            self._transplant(z, y)
+            y._left = z.left
+            y.left._p = y
+            if y.red:
+                z._red = True
+            else:
+                z._red = False
+
+        if y_original_red == False:
+            self._delete_fixup(x)
+
+    def _delete_fixup(self, x):
+        while x != self.root and x.red == False:
+            if x == x.p.left:
+                w = x.p.right
+                if w.red:
+                    w._red = False
+                    w.p._red = True
+                    self._left_rotate(x.p)
+                    w = x.p.right
+                if w.left.red == False and w.right.red == False:
+                    w._red = True
+                    x = x.p
+                else:
+                    if w.right.red == False:
+                        w.left._red = False
+                        w._red = True
+                        self._right_rotate(w)
+                        w = x.p.right
+                    if x.p.red:
+                        w._red = True
+                    else:
+                        w._red = False
+                    x.p._red = False
+                    w.right._red = False
+                    self._left_rotate(x.p)
+                    x = self.root
+            else:
+                w = x.p.left
+                if w.red:
+                    w._red = False
+                    w.p._red = True
+                    self._right_rotate(x.p)
+                    w = x.p.left
+                if w.right.red == False and w.left.red == False:
+                    w._red = True
+                    x = x.p
+                else:
+                    if w.left.red == False:
+                        w.right._red = False
+                        w._red = True
+                        self._left_rotate(w)
+                        w = x.p.left
+                    if x.p.red:
+                        w._red = True
+                    else:
+                        w._red = False
+                    x.p._red = False
+                    w.left._red = False
+                    self._right_rotate(x.p)
+                    x = self.root
+        x._red = False
+                    
 
     def _left_rotate(self, x):
         y = x.right
@@ -215,32 +313,26 @@ class rbtree(object):
         y._p = x
 
 
-    def check_invariants(self):
+    def check_invariants(self): #need?
         
         def is_red_black_node(node):
-            # check has _left and _right or neither
             if (node.left and not node.right) or (node.right and not node.left):
                 return 0, False
 
-            # check leaves are black
             if not node.left and not node.right and node.red:
                 return 0, False
 
-            # if node is red, check children are black
             if node.red and node.left and node.right:
                 if node.left.red or node.right.red:
                     return 0, False
 
-            # descend tree and check black counts are balanced
             if node.left and node.right:
 
-                # check children's parents are correct
                 if self.nil != node.left and node != node.left.p:
                     return 0, False
                 if self.nil != node.right and node != node.right.p:
                     return 0, False
 
-                # check children are ok
                 left_counts, left_ok = is_red_black_node(node.left)
                 if not left_ok:
                     return 0, False
@@ -248,7 +340,6 @@ class rbtree(object):
                 if not right_ok:
                     return 0, False
 
-                # check children's counts are ok
                 if left_counts != right_counts:
                     return 0, False
                 return left_counts, True
@@ -267,9 +358,16 @@ def main():
     friendshipNum = 0
     userNum = 0
     wordNum = 0
+    fAverage = 0
+    fMax = 0
+    fMin = 0
+    tAverage = 0
+    tMax = 0
+    tMin = 0
     userResult = []
     while True:
-        print("[[[ Hello World! ]]]")
+        print("")
+        print("xXxX[ Mini Tweet Analyzer 9000 ]XxXx")
         print("0. Read data files")
         print("1. display statistics")
         print("2. Top 5 most tweeted words")
@@ -284,13 +382,17 @@ def main():
         sel = input("Select Menu: ")
         
         if sel =="99":
-            print("Exiting")
+            print("")
+            print("Exiting...")
+            sys.exit()
             
         elif sel == "0":
+            print("")
             print("Reading data files...")
             userNum = openUser(userTree)
             wordNum = openWord(wordTree)
             friendshipNum = openFriend(userTree)
+            print("===== R E S U L T S =====")
             print("Total users: ", end = "")
             print(userNum)
             print("Total friendship records: ", end = "")
@@ -299,56 +401,131 @@ def main():
             print(wordNum)
         
         elif dataEmpty(userTree, wordTree):
+            print("")
             print("No data available. Reading data files first...")
             userNum = openUser(userTree)
             wordNum = openWord(wordTree)
             friendshipNum = openFriend(userTree)
+            print("===== R E S U L T S =====")
             print("Total users: ", end = "")
             print(userNum)
             print("Total friendship records: ", end = "")
             print(friendshipNum)
             print("Total tweets: ", end = "")
             print(wordNum)
-            continue
     
         elif sel == "1":
-            print("Statistics")
+            fAverage = friendshipNum / userNum
+            tAverage = wordNum / userNum
+            #fMin =
+            #tMin = 
+            #fMax =
+            #tMax =
+            print("")
+            print("===== S T A T S =====")
+            print("Average number of friends : ", end = "")
+            print(fAverage)
+            print("Minimum number of friends : ", end = "")
+            print(fMin)
+            print("Maximum number of friends : ", end = "")
+            print(fMax)
+            print("")
+            print("Average tweets per user : ", end = "")
+            print(tAverage)
+            print("Minimum tweets per user : ", end = "")
+            print(tMin)
+            print("Maximum tweets per user : ", end = "")
+            print(tMax)
+            
         
         elif sel == "2":
+            #tweet frequency tree?
+            print("")
             print("Top 5 most tweeted words")
         
         elif sel == "3":
+            #tweet num tree?
+            userResult = []
+            print("")
             print("Top 5 most tweeted users")
 
         elif sel == "4":
+            userResult = []
+            print("")
             print("Users who tweeted a word")
-            whatword = input("Search a word: ")
+            print("")
+            whatWord = input("Search a word: ")
+            wordNode = wordTree.search(whatWord)
+            if wordNode == wordTree.nil:
+                print("")
+                print("Wow. Such empty.")
+            else:
+                for item in wordNode.userData:
+                    print("User ", end = "") #fix duplicates!
+                    print(item)
+                    userResult.append(item)
         
         elif sel == "5":
+            print("")
             print("Find all people who are friends with the above users")
+            print("")
             if userResult == []:
                 print("No users found or selected. Try Choosing 3 or 4.")
-                continue
             else:
-                print("")
-            #find
-
+                for item in userResult:
+                    userNode = userTree.search(item)
+                    print("")
+                    print("Friends of ", end = "")
+                    print(item)
+                    if userNode != userTree.nil:
+                        for friend in userNode.userData:
+                            print("User ", end = "")
+                            print(friend)
+                    
         elif sel == "6":
+            print("")
             print("Delete all mentions of a word")
-            whatword = input("Search a word: ")
-            #delete
+            print("Current words : ", end = "")
+            print(wordNum)
+            print("")
+            whatWord = input("Search a word: ")
+            wordNode = wordTree.search(whatWord)
+            wordTree.delete_node(wordNode)
+            wordNum = wordNum - 1
+            print("")
+            print("Delete complete")
+            print("Current words : ", end = "")
+            print(wordNum)
         
         elif sel == "7":
+            print("")
             print("Delete all users who mentioned a word")
-            whatword = input("Search a word: ")
-            #delete
+            print("Current users : ", end = "")
+            print(userNum)
+            print("")
+            whatWord = input("Search a word: ")
+            wordNode = wordTree.search(whatWord)
+            if wordNode != wordTree.nil:
+                for user in wordNode.userData:
+                    userNode = userTree.search(user)
+                    if userNode != userTree.nil:
+                        userTree.delete_node(userNode)
+                        userNum = userNum - 1
+            print("")
+            print("Delete complete")
+            print("Current users : ", end = "")
+            print(userNum)
             
         elif sel == "8":
+            print("")
             print("Find strongly connected users")
+            print("")
             #find
             
         elif sel == "9":
+            print("")
             print("Find shortest path from a given user")
+            print("")
             whatuser = input("Choose a user: ")
             #find
             
