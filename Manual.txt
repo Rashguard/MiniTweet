@@ -1,0 +1,30 @@
+
+xXxX[ Mini Tweet Analyzer 9000 ]XxXx
+
+============ The Manual =============
+
+The Mini Tweet Analyzer 9000 has 10 functions, and an exit option(99)
+To use these functions, type the function number on the right side of the
+“Select Menu: ” interface, then press Enter to confirm.
+ex) Type 0 then press Enter to read the data files.
+
+The data files have to be given first in order to use functions 1 ~ 9.
+If the user chooses functions 1 ~ 9 but did not give any data files prior to that,
+the Mini Tweet Analyzer 9000 will automatically read the data files first.
+
+The file formats should be: “friend.txt”, “user.txt”, “word.txt”
+
+Enjoy!
+
+0. Read data files
+1. display statistics
+2. Top 5 most tweeted words
+3. Top 5 most tweeted users
+4. Find users who tweeted a word
+5. Find all people who are friends with the above users
+6. Delete all mentions of a word
+7. Delete all users who mentioned a word
+8. Find strongly connected users
+9. Find shortest path from a given user
+99. Quit
+Select Menu: 
