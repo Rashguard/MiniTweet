@@ -4,6 +4,11 @@ xXxX[ Mini Tweet Analyzer 9000 ]XxXx
 ============ Report =============
 
 The ultimate Mini Tweet Analyzer 9000 uses Red-Black Trees for its data structures.
-Since Red-Black Trees are good in balancing itself, the time for dynamic set operations are O(log n). This makes the Mini Tweet Analyzer 9000 pretty faster than programs that use different data structures.
-The Mini Tweet Analyzer 9000 successfully reads files from the given files and is able to provide statistics of the read data. It can search users who tweeted a word, and can delete tweets and users. The Mini Tweet Analyzer 9000 updates friend database accordingly as users are deleted.
-This program can be improved to provide additional statistics, or find most influential users or tweet trends. Some valuation formula will be needed for such operations.
+Since Red-Black Trees are good in balancing itself, the time for dynamic set operations are O(log n).
+This makes the Mini Tweet Analyzer 9000 pretty faster than programs that use different data structures.
+
+The Mini Tweet Analyzer 9000 successfully reads files from the given files and is able to provide statistics of the read data.
+It can search users who tweeted a word, and can delete tweets and users.
+The Mini Tweet Analyzer 9000 updates friend database accordingly as users are deleted.
+This program can be improved to provide additional statistics, or find most influential users or tweet trends.
+Some valuation formula will be needed for such operations.
