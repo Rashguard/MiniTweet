@@ -1,0 +1,13 @@
+Self Evaluation Form (6.23)
+
+10	-	Submit a github account(10)
+10	-	Commit source code displaying menu(10)
+10	-	Commit the first draft of manual(10)
+20	-	Read data files(20)
+20	-	Statistics(20)
+10	-	Top 5 most tweeted words(10)
+10	-	Top 5 most tweeted users(10)
+10	-	Find all users who mentioned a word(10)
+10	-	Find all users who are friends with the above user(10)
+0	-	Top 5 strongly connected components(10) 	// Not implemented yet
+0	-	Find shortest path from a user(10)	// Not implemented yet
