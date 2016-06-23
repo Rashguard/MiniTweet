@@ -1,7 +1,7 @@
 
 xXxX[ Mini Tweet Analyzer 9000 ]XxXx
 
-============ The Manual =============
+============ Report =============
 
 The ultimate Mini Tweet Analyzer 9000 uses Red-Black Trees for its data structures.
 Since Red-Black Trees are good in balancing itself, the time for dynamic set operations are O(log n). This makes the Mini Tweet Analyzer 9000 pretty faster than programs that use different data structures.
