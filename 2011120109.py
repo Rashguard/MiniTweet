@@ -2,6 +2,30 @@ import sys
 ########################################################################
 #Methods
 
+def swapFrequencyTreeWalk(rbtree, userTree, userTreeRoot):
+    userNode = userTreeRoot
+    if userNode != userTree.nil:
+        swapFrequencyTreeWalk(rbtree, userTree, userTreeRoot.left)
+        
+        key = userNode.key
+        freq = userNode.frequency
+    
+        rbtree.insert_key(freq, key)
+        
+        swapFrequencyTreeWalk(rbtree, userTree, userTreeRoot.right)
+
+def swapDataTreeWalk(rbtree, userTree, userTreeRoot):
+    userNode = userTreeRoot
+    if userNode != userTree.nil:
+        swapDataTreeWalk(rbtree, userTree, userTreeRoot.left)
+
+        key = userNode.key
+        uDataLen = userNode.userDataLen
+        
+        rbtree.insert_key(uDataLen, key)
+
+        swapDataTreeWalk(rbtree, userTree, userTreeRoot.right)
+
 def openFriend(rbtree):
     i = 0
     friendshipNum = 0
@@ -32,7 +56,7 @@ def openUser(rbtree):
                 userNum = userNum + 1
     return userNum
                 
-def openWord(rbtree):
+def openWord(rbtree, userTree):
     i = 0
     wordNum = 0
     currUser = ""
@@ -51,10 +75,15 @@ def openWord(rbtree):
                 rbtree.insert_key(text)
                 wordNum = wordNum + 1
                 
+                userNode = userTree.search(currUser)
+                if userNode != userTree.nil:
+                    userNode.frequency = userNode.frequency + 1
+                    
                 textNode = rbtree.search(text)
-                if textNode is not rbtree.nil:
+                if textNode != rbtree.nil:
                     textNode.frequency = textNode.frequency + 1
-                    textNode.userData.append(currUser)
+                    if currUser not in textNode.userData:
+                        textNode.userData.append(currUser)
     return wordNum
 
 def dataEmpty(userTree, wordTree):
@@ -68,7 +97,7 @@ def dataEmpty(userTree, wordTree):
 
 #RBNode
 class rbnode(object):
-    def __init__(self, key):
+    def __init__(self, key, data = ""):
         self._key = key
         self._red = False
         self._left = None
@@ -76,6 +105,7 @@ class rbnode(object):
         self._p = None
         self.frequency = 0
         self.userData = []
+        self.data = data
 
     key = property(fget=lambda self: self._key)
     red = property(fget=lambda self: self._red)
@@ -126,8 +156,8 @@ class rbtree(object):
             x = x.right
         return x
 
-    def insert_key(self, key):
-        self.insert_node(self._create_node(key=key))
+    def insert_key(self, key, data = ""):
+        self.insert_node(self._create_node(key=key, data=data))
 
     def insert_node(self, z):
         y = self.nil
@@ -312,6 +342,52 @@ class rbtree(object):
         x._right = y
         y._p = x
 
+    def _predecessor(self, x):
+        if x == self.nil:
+            return self.nil
+        if x.left != self.nil:
+            return self.maximum(x.left)
+        y = x.p
+        while y != self.nil and x == y.left:
+            x = y
+            y = y.p
+            if y == None:
+                return self.nil
+        return y
+
+    def _successor(self, x):
+        if x == self.nil:
+            return self.nil
+        if x.right != self.nil:
+            return self.minimum(x.right)
+        y = x.p
+        while y != self.nil and x == y.right:
+            x = y
+            y = y.p
+            if y == None:
+                return self.nil
+        return y
+
+    def topFive(self):
+        toplist = []
+        top1 = self.maximum()
+        top2 = self._predecessor(top1)
+        top3 = self._predecessor(top2)
+        top4 = self._predecessor(top3)
+        top5 = self._predecessor(top4)
+
+        if top1 != self.nil:
+            toplist.append(top1)
+            if top2 != self.nil:
+                toplist.append(top2)
+                if top3 != self.nil:
+                    toplist.append(top3)
+                    if top4 != self.nil:
+                        toplist.append(top4)
+                        if top5 != self.nil:
+                            toplist.append(top5)
+
+        return toplist
 
     def check_invariants(self): #need?
         
@@ -355,6 +431,9 @@ class rbtree(object):
 def main():
     userTree = rbtree()
     wordTree = rbtree()
+    tFreqTree = rbtree()
+    uFreqTree = rbtree()
+    fNumTree = rbtree()
     friendshipNum = 0
     userNum = 0
     wordNum = 0
@@ -365,6 +444,7 @@ def main():
     tMax = 0
     tMin = 0
     userResult = []
+    
     while True:
         print("")
         print("xXxX[ Mini Tweet Analyzer 9000 ]XxXx")
@@ -389,9 +469,21 @@ def main():
         elif sel == "0":
             print("")
             print("Reading data files...")
+            
+            #make trees again to prevent error while multiple read commands
+            userTree = rbtree()
+            wordTree = rbtree()
+            tFreqTree = rbtree()
+            uFreqTree = rbtree()
+            fNumTree = rbtree()
+            
             userNum = openUser(userTree)
-            wordNum = openWord(wordTree)
+            wordNum = openWord(wordTree, userTree)
             friendshipNum = openFriend(userTree)
+            swapFrequencyTreeWalk(tFreqTree, wordTree, wordTree.root)
+            swapFrequencyTreeWalk(uFreqTree, userTree, userTree.root)
+            swapDataTreeWalk(fNumTree, userTree, userTree.root)
+            
             print("===== R E S U L T S =====")
             print("Total users: ", end = "")
             print(userNum)
@@ -403,9 +495,21 @@ def main():
         elif dataEmpty(userTree, wordTree):
             print("")
             print("No data available. Reading data files first...")
+            
+            #make trees again to prevent error while multiple read commands
+            userTree = rbtree()
+            wordTree = rbtree()
+            tFreqTree = rbtree()
+            uFreqTree = rbtree()
+            fNumTree = rbtree()
+            
             userNum = openUser(userTree)
-            wordNum = openWord(wordTree)
+            wordNum = openWord(wordTree, userTree)
             friendshipNum = openFriend(userTree)
+            swapFrequencyTreeWalk(tFreqTree, wordTree, wordTree.root)
+            swapFrequencyTreeWalk(uFreqTree, userTree, userTree.root)
+            swapDataTreeWalk(fNumTree, userTree, userTree.root)
+            
             print("===== R E S U L T S =====")
             print("Total users: ", end = "")
             print(userNum)
@@ -417,10 +521,13 @@ def main():
         elif sel == "1":
             fAverage = friendshipNum / userNum
             tAverage = wordNum / userNum
-            #fMin =
-            #tMin = 
-            #fMax =
-            #tMax =
+            
+            fMin = fNumTree.minimum().key
+            tMin = uFreqTree.minimum().key
+            
+            fMax = fNumTree.maximum().key
+            tMax = uFreqTree.maximum().key
+            
             print("")
             print("===== S T A T S =====")
             print("Average number of friends : ", end = "")
@@ -439,15 +546,72 @@ def main():
             
         
         elif sel == "2":
-            #tweet frequency tree?
+            topList = tFreqTree.topFive()
+            print(topList)
+            top1 = topList[0]
+            top2 = topList[1]
+            top3 = topList[2]
+            top4 = topList[3]
+            top5 = topList[4]
             print("")
             print("Top 5 most tweeted words")
+            print(top1.data)
+            print(top1.key, end = "")
+            print(" Times")
+            print("")
+            print(top2.data)
+            print(top2.key, end = "")
+            print(" Times")
+            print("")
+            print(top3.data)
+            print(top3.key, end = "")
+            print(" Times")
+            print("")
+            print(top4.data)
+            print(top4.key, end = "")
+            print(" Times")
+            print("")
+            print(top5.data)
+            print(top5.key, end = "")
+            print(" Times")
+            print("")
         
         elif sel == "3":
-            #tweet num tree?
             userResult = []
+            topList = uFreqTree.topFive()
+            top1 = topList[0]
+            top2 = topList[1]
+            top3 = topList[2]
+            top4 = topList[3]
+            top5 = topList[4]
+            userResult.append(top1.data)
+            userResult.append(top2.data)
+            userResult.append(top3.data)
+            userResult.append(top4.data)
+            userResult.append(top5.data)
             print("")
             print("Top 5 most tweeted users")
+            print("User ", end = "")
+            print(top1.data)
+            print(top1.key)
+            print("")
+            print("User ", end = "")
+            print(top2.data)
+            print(top2.key)
+            print("")
+            print("User ", end = "")
+            print(top3.data)
+            print(top3.key)
+            print("")
+            print("User ", end = "")
+            print(top4.data)
+            print(top4.key)
+            print("")
+            print("User ", end = "")
+            print(top5.data)
+            print(top5.key)
+            print("")
+            
 
         elif sel == "4":
             userResult = []
@@ -461,7 +625,7 @@ def main():
                 print("Wow. Such empty.")
             else:
                 for item in wordNode.userData:
-                    print("User ", end = "") #fix duplicates!
+                    print("User ", end = "")
                     print(item)
                     userResult.append(item)
         
